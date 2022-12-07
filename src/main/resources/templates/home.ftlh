@@ -1,47 +1,41 @@
 <#import "parts/common.ftlh" as c>
 <#import "parts/login.ftlh" as l>
 
-    <@c.page>
+<@c.page>
     <div class="row text-center">
         <div class="col-sm">
-            <div class="row">
-                <div class="col-12">
-                    <form method="post" action="/">
+            <form method="post" action="/post-processing/index">
+                <div class="row">
+                    <div class="col-12">
                         <div class="form-row">
                             <div class="col-9">
                                 <select name="accounts" class="form-control">
                                     <#list accounts as account>
-                                        <#if account.selected = true>
-                                            <option name="account" selected>${account.name}</option>
-                                        <#else>
-                                            <option name="account">${account.name}</option>
-                                        </#if>
+                                        <option name="account">${account.name}</option>
                                     </#list>
                                 </select>
                             </div>
                             <div class="col-3">
-                                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                                <button class="btn btn-primary mr-1" type="submit">Set</button>
                                 <a class="btn btn-primary" href="/accounts/index">Edit</a>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-
-            </div>
-            <div class="row col-12 mt-2">
-                <a href="/post-processing/index" class="btn btn-primary btn-block">Post processing</a>
-            </div>
+                <div class="row col-12 mt-2">
+                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-primary btn-block">Post processing</button>
+                </div>
+            </form>
             <form method="post" action="/posts/update">
                 <div class="row col-12 mt-2 form-group">
                     <textarea class="form-control" id="textPost" name="textPost"
                               rows="7" style="resize: none"
-                              placeholder="Text of post" required>${post.text}</textarea>
+                              placeholder="Text of post" required><#if post??>${post.text}</#if></textarea>
                 </div>
                 <div class="row col-12 mt-2">
                     <label for="password" class="sr-only">photo_id</label>
                     <input type="text" id="photoId" name="photoId" class="form-control"
-                           placeholder="photo_id" value="${post.photo_id}" required>
+                           placeholder="photo_id" value="<#if post??>${post.photo_id}</#if>" required>
                 </div>
                 <div class="row col-12 mt-2">
                     <input type="hidden" name="_csrf" value="${_csrf.token}"/>

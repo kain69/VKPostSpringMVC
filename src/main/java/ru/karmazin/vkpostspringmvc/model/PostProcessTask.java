@@ -38,7 +38,6 @@ public class PostProcessTask implements Runnable{
     private TransportClient transportClient;
     private VkApiClient vk;
     private UserActor userActor;
-
     private VkAccount vkAccount;
     private List<Group> groupList;
     private Post post;
@@ -48,7 +47,7 @@ public class PostProcessTask implements Runnable{
         if(post == null){
             postRepository.findById(1L).ifPresent(value -> post = value);;
         }
-        if(post !=null){
+        if(post != null){
             if(post.getStarted()){
                 initFields();
 
@@ -62,9 +61,6 @@ public class PostProcessTask implements Runnable{
             transportClient = new HttpTransportClient();
         if(vk == null)
             vk = new VkApiClient(transportClient);
-        if(vkAccount == null){
-            vkAccount = vkAccountRepository.findBySelected();
-        }
         if(userActor == null){
             userActor = new UserActor(
                     vkAccount.getUser_id(),

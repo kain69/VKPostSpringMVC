@@ -30,7 +30,8 @@ public class ScheduledTasks {
     }
 
     public void updateTask() {
-        temp.cancel(true);
+        if(temp != null)
+            temp.cancel(true);
         scheduleAllCrons();
     }
 }

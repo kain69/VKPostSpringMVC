@@ -22,7 +22,5 @@ public class VkPostSpringMvcApplication {
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(VkPostSpringMvcApplication.class, args);
         ScheduledTasks scheduledTasks = ctx.getBean(ScheduledTasks.class);
-
-        scheduledTasks.scheduleAllCrons();
     }
 }

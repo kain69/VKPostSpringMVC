@@ -42,17 +42,4 @@ public class HomeController {
         model.addAttribute("groups", groups);
         return "home";
     }
-
-    @PostMapping("/")
-    public String setAccount(@ModelAttribute("accounts") String accounts){
-        VkAccount vkAccount = vkAccountRepository.findBySelected();
-        vkAccount.setSelected(false);
-        vkAccountRepository.save(vkAccount);
-
-        vkAccount = vkAccountRepository.findByName(accounts);
-        vkAccount.setSelected(true);
-        vkAccountRepository.save(vkAccount);
-
-        return "redirect:/";
-    }
 }

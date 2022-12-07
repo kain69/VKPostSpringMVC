@@ -26,14 +26,11 @@ public class VkAccount {
     private Integer user_id;
     @NotBlank(message = "Please fill the access_token")
     private String access_token;
-    @NotNull
-    private Boolean selected = false;
 
 
     public VkAccount(String name, Integer user_id, String access_token) {
         this.name = name;
         this.user_id = user_id;
         this.access_token = access_token;
-        this.selected = false;
     }
 }
