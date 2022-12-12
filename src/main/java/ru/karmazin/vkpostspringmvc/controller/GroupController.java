@@ -1,5 +1,6 @@
 package ru.karmazin.vkpostspringmvc.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +20,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/groups")
+@Slf4j
 public class GroupController {
     @Autowired
     private GroupRepository groupRepository;
@@ -34,9 +36,11 @@ public class GroupController {
 
             model.mergeAttributes(errorsMap);
             model.addAttribute("group", group);
+            log.warn("Группа имеет ошибки: {}", errorsMap);
             return homeController.home(model);
         }
         else{
+            log.info("Группа создана {}", group.getName());
             groupRepository.save(group);
         }
 
@@ -45,6 +49,7 @@ public class GroupController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") Long id) {
+        log.info("Группа удалена id={}", id);
         groupRepository.deleteById(id);
         return "redirect:/";
     }

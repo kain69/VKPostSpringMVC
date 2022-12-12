@@ -10,6 +10,7 @@ import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.wall.responses.PostResponse;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.karmazin.vkpostspringmvc.repository.GroupRepository;
@@ -25,6 +26,7 @@ import java.util.List;
 @Getter
 @Setter
 @Component
+@Slf4j
 public class PostProcessTask implements Runnable{
     @Autowired
     private TimeRepository timeRepository;
@@ -45,7 +47,7 @@ public class PostProcessTask implements Runnable{
     @Override
     public void run() {
         if(post == null){
-            postRepository.findById(1L).ifPresent(value -> post = value);;
+            postRepository.findById(1L).ifPresent(value -> post = value);
         }
         if(post != null){
             if(post.getStarted()){
@@ -57,6 +59,7 @@ public class PostProcessTask implements Runnable{
     }
 
     private void initFields() {
+        log.info("Инициализация Vk Api");
         if(transportClient == null)
             transportClient = new HttpTransportClient();
         if(vk == null)
@@ -73,7 +76,10 @@ public class PostProcessTask implements Runnable{
     }
 
     private void startPosting() {
+        log.info("Старт постов");
+        log.info("Группы:");
         for (Group group : groupList) {
+            log.info("{}", group.getName());
             try {
                 PostResponse postResponse = vk.wall().post(userActor)
                         .ownerId(group.getGroup_id())
@@ -83,14 +89,17 @@ public class PostProcessTask implements Runnable{
                 System.out.println(postResponse);
             }
             catch (ApiWallAddPostException e){
+                log.warn("Бан в группе: {}", group.getName());
                 groupList.remove(group);
                 if(groupList.size() == 0){
-                    System.out.println("Все группы забанены");
+                    log.warn("Все группы забанены");
                     post.setStarted(false);
+                    log.info("Отключение автопостинга");
                     break;
                 }
             }
             catch (ApiException | ClientException  e) {
+                log.error("Необработанная ошибка");
                 throw new RuntimeException(e);
             }
         }

@@ -1,5 +1,6 @@
 package ru.karmazin.vkpostspringmvc.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import java.util.Optional;
  */
 @Controller
 @RequestMapping("/post-processing")
+@Slf4j
 public class PostProcessController {
     private final PostRepository postRepository;
     private final GroupRepository groupRepository;
@@ -81,6 +83,7 @@ public class PostProcessController {
     public String timeUpdate(@ModelAttribute("time1") String time1,
                              @ModelAttribute("time2") String time2,
                              @ModelAttribute("time3") String time3) {
+        log.info("Обновление времени");
         List<String> stringList = List.of(time1, time2, time3);
         List<Time> timeList = new ArrayList<>();
         for (String time : stringList) {
@@ -98,9 +101,15 @@ public class PostProcessController {
 
     @PostMapping("/status")
     public String startProcess() {
-        Post temp = postRepository.findById(1L).get();
-        temp.setStarted(!temp.getStarted());
-        postRepository.save(temp);
+        log.info("Старт процесса автопостинга");
+        Optional<Post> temp = postRepository.findById(1L);
+        if(temp.isEmpty()) {
+            log.info("Нет поста");
+            return "redirect:/";
+        }
+        Post temp2 = temp.get();
+        temp2.setStarted(!temp2.getStarted());
+        postRepository.save(temp2);
         return "redirect:/post-processing/index";
     }
 }

@@ -1,5 +1,6 @@
 package ru.karmazin.vkpostspringmvc.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import java.util.Optional;
  */
 @Controller
 @RequestMapping("/posts")
+@Slf4j
 public class PostController {
 
     @Autowired
@@ -30,6 +32,7 @@ public class PostController {
     @PostMapping("/update")
     public String updatePost(@ModelAttribute("textPost") String textPost,
                              @ModelAttribute("photoId") String photoId) {
+        log.info("Обновление поста");
         Optional<Post> post = postRepository.findById(1L);
         if (post.isPresent()) {
             post.get().setText(textPost);
