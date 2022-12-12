@@ -1,5 +1,6 @@
 package ru.karmazin.vkpostspringmvc.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * @author Vladislav Karmazin
  */
 @Controller
+@Slf4j
 public class HomeController {
     private final VkAccountRepository vkAccountRepository;
     private final GroupRepository groupRepository;
@@ -41,5 +43,19 @@ public class HomeController {
         model.addAttribute("accounts", accounts);
         model.addAttribute("groups", groups);
         return "home";
+    }
+
+    @PostMapping("/set-account")
+    public String setAccount(@ModelAttribute("account") String account){
+        Optional<VkAccount> acc = vkAccountRepository.findByName(account);
+        if (acc.isEmpty()) {
+            log.info("При выборе аккаунта ничего не передано");
+        }
+        Optional<VkAccount> oldSelectedAccount = vkAccountRepository.findBySelected(true);
+        oldSelectedAccount.ifPresent(value -> value.setSelected(false));
+        acc.ifPresent(value -> value.setSelected(true));
+        acc.ifPresent(vkAccountRepository::save);
+        oldSelectedAccount.ifPresent(vkAccountRepository::save);
+        return "redirect:/";
     }
 }

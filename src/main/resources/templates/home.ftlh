@@ -4,28 +4,30 @@
 <@c.page>
     <div class="row text-center">
         <div class="col-sm">
-            <form method="post" action="/post-processing/index">
+            <form method="post" action="/set-account">
                 <div class="row">
                     <div class="col-12">
                         <div class="form-row">
                             <div class="col-9">
-                                <select name="accounts" class="form-control">
+                                <select name="account" class="form-control">
                                     <#list accounts as account>
-                                        <option name="account">${account.name}</option>
+                                        <option name="account" <#if account.selected=true>selected</#if>>${account.name}</option>
                                     </#list>
                                 </select>
                             </div>
                             <div class="col-3">
+                                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-primary">Set</button>
                                 <a class="btn btn-primary" href="/accounts/index">Edit</a>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row col-12 mt-2">
-                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                    <button type="submit" class="btn btn-primary btn-block">Post processing</button>
-                </div>
             </form>
+            <div class="row col-12 mt-2">
+                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                <a href="/post-processing/index" class="btn btn-primary btn-block">Post processing</a>
+            </div>
             <form method="post" action="/posts/update">
                 <div class="row col-12 mt-2 form-group">
                     <textarea class="form-control" id="textPost" name="textPost"

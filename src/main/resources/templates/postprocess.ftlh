@@ -5,7 +5,7 @@
         <div class="col-12 col-lg-4">
             <form method="post" action="/post-processing/time">
                 <div class="form-group">
-                    <label class="form-control">Выбранный аккаунт: ${targetAccount!}</label>
+                    <label class="form-control">Выбранный аккаунт: ${targetAccount.name!}</label>
                 </div>
                 <div class="form-group">
                     <input class="form-control time" type="time" id="time1" name="time1"

@@ -36,23 +36,28 @@ public class VkAccountController {
     public String create(@Valid VkAccount account,
                          BindingResult bindingResult,
                          Model model){
+        if (vkAccountRepository.count() == 0) {
+            account.setSelected(true);
+        }
         if (bindingResult.hasErrors()) {
             Map<String, String> errorsMap = ControllerUtils.getErrors(bindingResult);
 
             model.mergeAttributes(errorsMap);
             model.addAttribute("account", account);
             log.warn("Аккаунт имеет ошибки(создание): {}", errorsMap);
+
+            Iterable<VkAccount> accountsList = vkAccountRepository.findAll();
+
+            model.addAttribute("accounts", accountsList);
+
+            return "accounts/index";
         }
         else{
             vkAccountRepository.save(account);
+            log.info("Аккаунт создан {}", account.getName());
         }
-        Iterable<VkAccount> accounts = vkAccountRepository.findAll();
 
-        model.addAttribute("accounts", accounts);
-
-        log.info("Аккаунт создан {}", account.getName());
-
-        return "accounts/index";
+        return "redirect:/accounts/index";
     }
 
     @PostMapping("/index/{id}")

@@ -1,5 +1,6 @@
 package ru.karmazin.vkpostspringmvc.model;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
@@ -11,6 +12,7 @@ import java.util.concurrent.ScheduledFuture;
  * @author Vladislav Karmazin
  */
 @Component
+@Slf4j
 public class ScheduledTasks {
     @Autowired
     private TaskScheduler taskScheduler;
@@ -21,17 +23,21 @@ public class ScheduledTasks {
     @Autowired
     private PostProcessTask postProcessTask;
 
-    private ScheduledFuture<?> temp;
+    private ScheduledFuture<?> scheduledFuture;
 
     public void scheduleAllCrons() {
+        log.info("Установка новых schedules:");
         for (String cron : cronConfig.getSchedules()) {
-            temp = taskScheduler.schedule(postProcessTask, new CronTrigger(cron));
+            log.info("cron = {}", cron);
+            scheduledFuture = taskScheduler.schedule(postProcessTask, new CronTrigger(cron));
         }
     }
 
     public void updateTask() {
-        if(temp != null)
-            temp.cancel(true);
+        if(scheduledFuture != null) {
+            log.info("Отмена schedules");
+            scheduledFuture.cancel(true);
+        }
         scheduleAllCrons();
     }
 }
