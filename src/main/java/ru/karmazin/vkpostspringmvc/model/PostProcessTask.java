@@ -9,9 +9,7 @@ import com.vk.api.sdk.exceptions.ApiWallAddPostException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.wall.responses.PostResponse;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.karmazin.vkpostspringmvc.repository.GroupRepository;
@@ -45,11 +43,14 @@ public class PostProcessTask implements Runnable {
 
     @Override
     public void run() {
-        if (initUserData())
-            return;
+        if (initUserData()) {
+            throw new RuntimeException();
+        }
+
         if (post != null) {
             if (!post.getStarted()) {
                 log.info("Не удалось запустить процесс, post не существует");
+                throw new RuntimeException();
             }
             initVk();
 
@@ -57,24 +58,28 @@ public class PostProcessTask implements Runnable {
         }
     }
 
+    public void updateGroups() {
+        this.groupList = groupRepository.findAll();
+    }
+
     private boolean initUserData() {
-        if (post == null) {
-            postRepository.findById(1L).ifPresent(value -> post = value);
+        postRepository.findById(1L).ifPresent(value -> post = value);
+        Optional<VkAccount> vkAccountOptional =
+                vkAccountRepository.findBySelected(true);
+        if (vkAccountOptional.isEmpty()) {
+            log.info("Нет выбранного аккаунта");
+            post.setStarted(false);
+            log.info("Отключение автопостинга");
+            return true;
         }
-        if (vkAccount == null) {
-            Optional<VkAccount> vkAccountOptional =
-                    vkAccountRepository.findBySelected(true);
-            if (vkAccountOptional.isEmpty()) {
-                log.info("Нет выбранного аккаунта");
-                post.setStarted(false);
-                log.info("Отключение автопостинга");
-                return true;
-            }
-            vkAccount = vkAccountOptional.get();
-            log.info("Выбранный аккаунт: {}", vkAccount.getName());
-        }
-        if (groupList == null) {
+        vkAccount = vkAccountOptional.get();
+        log.info("Выбранный аккаунт: {}", vkAccount.getName());
+
+        if (groupList.isEmpty())
             groupList = groupRepository.findAll();
+        if (groupList.isEmpty()) {
+            log.info("Нет групп для постинга");
+            return true;
         }
         return false;
     }
@@ -104,7 +109,7 @@ public class PostProcessTask implements Runnable {
                         .message(post.getText())
                         .attachments(post.getPhoto_id())
                         .execute();
-                log.info("Отправлен пост: {}",postResponse);
+                log.info("Отправлен пост: {}", postResponse);
             } catch (ApiWallAddPostException e) {
                 log.warn("Бан в группе: {}", group.getName());
                 groupList.remove(group);
@@ -112,7 +117,7 @@ public class PostProcessTask implements Runnable {
                     log.warn("Все группы забанены");
                     post.setStarted(false);
                     log.info("Отключение автопостинга");
-                    break;
+                    throw new RuntimeException();
                 }
             } catch (ApiAuthException e) {
                 log.error("Ошибка аутентификации");
