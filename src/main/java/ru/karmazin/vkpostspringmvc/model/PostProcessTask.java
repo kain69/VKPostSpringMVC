@@ -44,6 +44,7 @@ public class PostProcessTask implements Runnable {
     @Override
     public void run() {
         if (initUserData()) {
+            log.info("Не удалось инициализировать данные пользователя");
             throw new RuntimeException();
         }
 
@@ -60,6 +61,8 @@ public class PostProcessTask implements Runnable {
 
     public void updateGroups() {
         this.groupList = groupRepository.findAll();
+        log.info("Группы обновленны в пост процессе");
+        log.info("Групп добавлено в процесс: " + groupList.size());
     }
 
     private boolean initUserData() {
@@ -75,8 +78,9 @@ public class PostProcessTask implements Runnable {
         vkAccount = vkAccountOptional.get();
         log.info("Выбранный аккаунт: {}", vkAccount.getName());
 
-        if (groupList.isEmpty())
-            groupList = groupRepository.findAll();
+        if (groupList.isEmpty()) {
+            this.updateGroups();
+        }
         if (groupList.isEmpty()) {
             log.info("Нет групп для постинга");
             return true;
